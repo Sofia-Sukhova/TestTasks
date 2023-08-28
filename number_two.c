@@ -103,6 +103,34 @@ struct Graph* createGraph(int vertices, int edges) {
     return graph;
 }
  
+//  Добавляет новое ребро src -> dest в граф graph . Ребра в список исходящих вершин добавляются в порядке возрастания идентификатора ребра
+void addEdge(struct Graph* graph, int src, int dest) {
+    struct node * source = graph -> nodes[src];
+    struct node * destination = graph -> nodes[dest];
+
+    struct listNode * destNewListNode = createListNode();
+    struct listNode * srcNewListNode = createListNode();
+    
+    //поиск позиции в списке, в которую следует поместить новый узел
+    struct listNode* temp = source -> nextHead;
+    while (temp -> nextNode != NULL && (temp -> vertex < dest || temp -> vertex == 0xdeadfa11)){
+        temp = temp -> nextNode;
+    }
+    //добавление новой вершины (vertex == dest) в список вершин, достижимых из source
+        if (temp -> vertex < dest || temp == source -> nextHead){
+            assignListNode(destNewListNode, dest, srcNewListNode, NULL, NULL);
+            pushInList(destNewListNode, temp);
+        } else {
+            assignListNode(destNewListNode, dest, srcNewListNode, NULL, NULL);
+            pushInList(destNewListNode, temp -> prevNode);
+
+        }
+
+    //добавление новой вершины (vertex == src) в список вершин, из которых достижима destination
+    assignListNode(srcNewListNode, src, destNewListNode, NULL, NULL);
+    pushInList(srcNewListNode, destination -> prevHead);
+}
+
 //  Считывает граф в формате задачи
 struct Graph* scanGraph(){
     int N = 0, M = 0;
@@ -131,34 +159,6 @@ void printGraph(struct Graph* graph) {
             temp = temp -> nextNode;
         }
     }
-}
-
-//  Добавляет новое ребро src -> dest в граф graph . Ребра в список исходящих вершин добавляются в порядке возрастания идентификатора ребра
-void addEdge(struct Graph* graph, int src, int dest) {
-    struct node * source = graph -> nodes[src];
-    struct node * destination = graph -> nodes[dest];
-
-    struct listNode * destNewListNode = createListNode();
-    struct listNode * srcNewListNode = createListNode();
-    
-    //поиск позиции в списке, в которую следует поместить новый узел
-    struct listNode* temp = source -> nextHead;
-    while (temp -> nextNode != NULL && (temp -> vertex < dest || temp -> vertex == 0xdeadfa11)){
-        temp = temp -> nextNode;
-    }
-    //добавление новой вершины (vertex == dest) в список вершин, достижимых из source
-        if (temp -> vertex < dest || temp == source -> nextHead){
-            assignListNode(destNewListNode, dest, srcNewListNode, NULL, NULL);
-            pushInList(destNewListNode, temp);
-        } else {
-            assignListNode(destNewListNode, dest, srcNewListNode, NULL, NULL);
-            pushInList(destNewListNode, temp -> prevNode);
-
-        }
-
-    //добавление новой вершины (vertex == src) в список вершин, из которых достижима destination
-    assignListNode(srcNewListNode, src, destNewListNode, NULL, NULL);
-    pushInList(srcNewListNode, destination -> prevHead);
 }
  
 
@@ -211,6 +211,17 @@ void deleteNode(struct Graph * graph, int vertex){
     free(deleted);
 }
 
+//Удаляет мертвые вершины по принципу:
+//      если статус меньше двух (вершина посещена менее двух раз), то вершина - мертвая
+void deleteDead(struct Graph * graph) {
+    for (int i = 1; i < (graph -> size) - 1; i++){
+        if (graph -> nodes[i] -> status < 2){
+            deleteNode(graph, i);
+            (graph -> numVertices) -= 1;
+        }
+    }
+}
+
 //  Удаляет граф
 void deleteGraph(struct Graph * graph){
     for (int i = 0; i < graph -> size; i ++){
@@ -250,17 +261,6 @@ void DFS(struct Graph* graph, int vertex, int direction) {
 void clearVisitedList(struct Graph * graph) {
     for (int i = 0; i < graph -> size; i++){
         graph -> visited[i] = 0;
-    }
-}
-
-//Удаляет мертвые вершины по принципу:
-//      если статус меньше двух (вершина посещена менее двух раз), то вершина - мертвая
-void deleteDead(struct Graph * graph) {
-    for (int i = 1; i < (graph -> size) - 1; i++){
-        if (graph -> nodes[i] -> status < 2){
-            deleteNode(graph, i);
-            (graph -> numVertices) -= 1;
-        }
     }
 }
 
