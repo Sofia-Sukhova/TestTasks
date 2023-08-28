@@ -1,3 +1,7 @@
+//ADDD PUSHING IN LIST. NOW IT'S KRINGE
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,6 +41,15 @@ struct listNode* createListNode(){
     newNode -> nextNode = NULL;
     newNode -> prevNode = NULL;
     return newNode; 
+}
+
+void pushInList(struct listNode* pushed, struct listNode * prevInList){
+    pushed -> nextNode = prevInList -> nextNode;
+    pushed -> prevNode = prevInList;
+    if (prevInList -> nextNode != NULL){
+        prevInList -> nextNode -> prevNode = pushed;
+    }
+    prevInList -> nextNode = pushed;
 }
 
 // Создание вершины
@@ -98,31 +111,21 @@ void addEdge(struct Graph* graph, int src, int dest) {
     }
     if (temp != source -> nextHead){
         if (temp -> vertex < dest){
-            assignListNode(newNext, destination -> vertex, newPrev, temp -> nextNode, temp);
-            temp -> nextNode = newNext;
+            assignListNode(newNext, destination -> vertex, newPrev, NULL, NULL);
+            pushInList(newNext, temp);
         } else {
-            assignListNode(newNext, destination -> vertex, newPrev, temp, temp -> prevNode);
-            (temp -> prevNode) -> nextNode = newNext;
-            temp -> prevNode = newNext;
+            assignListNode(newNext, destination -> vertex, newPrev, NULL, NULL);
+            pushInList(newNext, temp -> prevNode);
+
         }
     } else {
-        assignListNode(newNext, destination -> vertex, newPrev, source -> nextHead -> nextNode, source -> nextHead);
-        if (source -> nextHead -> nextNode != NULL){
-            (source -> nextHead -> nextNode) -> prevNode = newNext;
-        }
-        source -> nextHead -> nextNode = newNext;
+        assignListNode(newNext, destination -> vertex, newPrev, NULL, NULL);
+        pushInList(newNext, source -> nextHead);
     } 
 
-
-
     //
-    assignListNode(newPrev, source -> vertex, newNext, destination -> prevHead -> nextNode, destination -> prevHead);
-    if (destination -> prevHead -> nextNode != NULL){
-        (destination -> prevHead -> nextNode) -> prevNode = newPrev;
-    }
-    destination -> prevHead -> nextNode = newPrev;
-
-
+    assignListNode(newPrev, source -> vertex, newNext, NULL, NULL);
+    pushInList(newPrev, destination -> prevHead);
 }
  
 
