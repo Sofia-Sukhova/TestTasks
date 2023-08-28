@@ -1,7 +1,3 @@
-//ADDD PUSHING IN LIST. NOW IT'S KRINGE
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,7 +19,7 @@ struct Graph {
     int size;
     int numVertices;
     int numEdges;
-    int* visited; // ????????
+    int* visited;
     struct node** nodes;
 };
 
