@@ -229,6 +229,8 @@ void deleteGraph(struct Graph * graph){
             deleteNode(graph, i);
         }
     }
+    free(graph -> visited);
+    free(graph -> nodes);
     free(graph);
 }
 

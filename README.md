@@ -10,3 +10,9 @@ To compile 2st task run `make compile_t2`
 
 To run nton tests for 2st task run `make test_t2`
 
+Variable `Ntests` in Makefile define quantity of tests to do
+
+Quantity of tests for 1st task - 10
+
+Quantity of tests for 2st task - 9
+
