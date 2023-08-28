@@ -68,29 +68,6 @@ struct Graph* createGraph(int vertices, int edges) {
     return graph;
 }
  
-// naming of vars!!!!!!!!!!!
-void addEdge(struct Graph* graph, int src, int dest) {
-    struct node * source = graph -> nodes[src];
-    struct node * destination = graph -> nodes[dest];
-
-    struct listNode * newNext = createListNode();
-    struct listNode * newPrev = createListNode();
-    //
-    assignListNode(newNext, destination -> vertex, newPrev, source -> nextHead -> nextNode, source -> nextHead);
-    if (source -> nextHead -> nextNode != NULL){
-        (source -> nextHead -> nextNode) -> prevNode = newNext;
-    }
-    source -> nextHead -> nextNode = newNext;
-
-
-    //
-    assignListNode(newPrev, source -> vertex, newNext, destination -> prevHead -> nextNode, destination -> prevHead);
-    if (destination -> prevHead -> nextNode != NULL){
-        (destination -> prevHead -> nextNode) -> prevNode = newPrev;
-    }
-    destination -> prevHead -> nextNode = newPrev;
-}
- 
 // Выводим граф
 void printGraph(struct Graph* graph) {
     int v;
@@ -106,6 +83,49 @@ void printGraph(struct Graph* graph) {
         }
     }
 }
+
+// naming of vars!!!!!!!!!!!
+void addEdge(struct Graph* graph, int src, int dest) {
+    struct node * source = graph -> nodes[src];
+    struct node * destination = graph -> nodes[dest];
+
+    struct listNode * newNext = createListNode();
+    struct listNode * newPrev = createListNode();
+    //
+    struct listNode* temp = source -> nextHead;
+    while (temp -> nextNode != NULL && (temp -> vertex < dest || temp -> vertex == 0xdeadfa11)){
+        temp = temp -> nextNode;
+    }
+    if (temp != source -> nextHead){
+        if (temp -> vertex < dest){
+            assignListNode(newNext, destination -> vertex, newPrev, temp -> nextNode, temp);
+            temp -> nextNode = newNext;
+        } else {
+            assignListNode(newNext, destination -> vertex, newPrev, temp, temp -> prevNode);
+            (temp -> prevNode) -> nextNode = newNext;
+            temp -> prevNode = newNext;
+        }
+    } else {
+        assignListNode(newNext, destination -> vertex, newPrev, source -> nextHead -> nextNode, source -> nextHead);
+        if (source -> nextHead -> nextNode != NULL){
+            (source -> nextHead -> nextNode) -> prevNode = newNext;
+        }
+        source -> nextHead -> nextNode = newNext;
+    } 
+
+
+
+    //
+    assignListNode(newPrev, source -> vertex, newNext, destination -> prevHead -> nextNode, destination -> prevHead);
+    if (destination -> prevHead -> nextNode != NULL){
+        (destination -> prevHead -> nextNode) -> prevNode = newPrev;
+    }
+    destination -> prevHead -> nextNode = newPrev;
+
+
+}
+ 
+
 
 void deleteListNode(struct listNode * deleted){
     struct listNode * linked = deleted -> linked;
@@ -214,6 +234,7 @@ struct Graph* scanGraph(){
 
 int main() { 
     struct Graph* graph =  scanGraph();
+    // printGraph(graph);
 
     DFS (graph, 0, 1);
     clearVisitedList(graph);

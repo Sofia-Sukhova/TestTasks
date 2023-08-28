@@ -1,5 +1,5 @@
 # Ntests problem 
-Ntests = 2
+Ntests = 9
 strForT1 = 1 $(Ntests)
 strForT2 = 2 $(Ntests)
 
