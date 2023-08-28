@@ -66,8 +66,10 @@ void assignListNode(struct listNode * assigned, int vertex, struct listNode * li
 
 //помещает в список элемент pushed после элемента prevInList
 void pushInList(struct listNode* pushed, struct listNode * prevInList){
-    pushed -> nextNode = prevInList -> nextNode;
-    pushed -> prevNode = prevInList;
+    if (pushed != NULL){
+        pushed -> nextNode = prevInList -> nextNode;
+        pushed -> prevNode = prevInList;
+    }
     if (prevInList -> nextNode != NULL){
         prevInList -> nextNode -> prevNode = pushed;
     }
@@ -235,27 +237,54 @@ void deleteGraph(struct Graph * graph){
 }
 
 
-//  Осуществляет поиск в глубину в заданном направлении.
+//  Осуществляет поиск в глубину итерационно в заданном направлении.
 //      direction == 1 - по направлению ребер графа
 //      direction == 0 - против направления ребер графа
 //      при обходе делается пометка о статусе "посещенности" в вершине. 
 void DFS(struct Graph* graph, int vertex, int direction) {
 
-    struct listNode* temp = NULL;
-    if (direction){
-        temp = graph -> nodes[vertex] -> nextHead;
-    } else {
-        temp = graph -> nodes[vertex] -> prevHead;
-    }
-    graph -> visited[vertex] = 1;
-    graph -> nodes[vertex] -> status ++;
+    struct listNode* stack_list = createListNode();
+    assignListNode(stack_list, 0xdeadfa11, stack_list, NULL, NULL);
 
-    while (temp -> nextNode != NULL){
-        temp = temp -> nextNode;
-        int connectedVertex = temp -> vertex;
-        if (graph -> visited[connectedVertex] == 0){
-            DFS(graph, connectedVertex, direction);
+    struct listNode* nowInNode = createListNode();
+    if (direction){
+       nowInNode = graph -> nodes[vertex] -> nextHead;
+    } else {
+        nowInNode = graph -> nodes[vertex] -> prevHead;   
+    }
+
+    struct listNode* v = createListNode();
+    struct listNode* u = createListNode();
+    assignListNode(v, vertex, nowInNode -> linked, nowInNode -> nextNode, nowInNode -> prevNode);
+
+    pushInList(v, stack_list);
+    stack_list -> linked = v;
+
+    while (v != NULL){
+
+        if (! graph -> visited[v -> vertex]){
+            if (direction){
+                nowInNode = graph -> nodes[v -> vertex] -> nextHead;
+            } else {
+                nowInNode = graph -> nodes[v -> vertex] -> prevHead;   
+            }
+            graph -> visited[v -> vertex] = 1;
+            graph -> nodes[v -> vertex] -> status ++;
+            
+
+            u = nowInNode -> nextNode;
+            while( u != NULL){
+                if (! graph -> visited[u -> vertex]){
+                    struct listNode* tmp = createListNode();
+                    assignListNode(tmp, u -> vertex, u -> linked, u -> nextNode, u -> prevNode);
+                    pushInList(tmp, stack_list -> linked);
+                    stack_list -> linked = tmp; 
+                }
+                u = u -> nextNode;
+            }
         }
+    
+        v = v -> nextNode;
     }
 }
 
@@ -273,10 +302,10 @@ int main() {
     //  Затем граф проходится в обратном направлении - от вершины N до 1 с пометкой в статусе вершины о посещении
     //  Вершины, имеющие status < 2 - мертвые, т.к. посещались менее 2-х раз. Такие вершины удаляются
     DFS (graph, 0, 1);
+
     clearVisitedList(graph);
     DFS (graph, (graph -> size) - 1, 0);
     deleteDead(graph);
- 
     printGraph(graph);
     deleteGraph(graph);
     
