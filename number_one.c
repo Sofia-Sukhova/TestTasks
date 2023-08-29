@@ -53,11 +53,17 @@ int main(){
 
 	//новое число берет старшие разряды из N (c i2 и старше)
 	New = N >> (i2 + 1);
+
 	//дописываются соответствующие разряды из M (с i1 до i2)
-	mask = ((unsigned long long)1 << length) - 1;
-	New = (New << length) + (M & (mask));
+	if (length == 64){
+		New = M;
+	} else {
+		mask = ((unsigned long long)1 << length) - (unsigned long long)1;
+		New = (New << length) + (M & (mask));
+	}
+
 	//дописываются оставшиеся младшие разряды из N (c i1 и младше)
-	mask = ((unsigned long long)1 << i1) - 1;
+	mask = ((unsigned long long)1 << i1) - (unsigned long long)1;
 	New = (New << i1) + (N & (mask));
 
 	bit_print(New);
